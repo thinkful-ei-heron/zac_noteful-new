@@ -6,116 +6,76 @@ import './NewNote.css'
 
 
 export default class NewNote extends React.Component {
-
-  state = {
-    name: {
-      value: ''
+  static defaultProps = {
+    history: {
+      push: () => { }
     },
-    content: {
-      value: ''
-    },
-    folder_id: {
-      value: ''
-    }
   }
-
-  
 
   static contextType = ApiContext
 
-  render(){
-    const postNewNote = (data) => {
-      fetch(`${config.API_ENDPOINT}/notes/`, {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-        },
-        body: data
-      })
+  handleSubmit = e => {
+    e.preventDefault()
+    const newNote = {
+      name: e.target['name'].value,
+      content: e.target['content'].value,
+      folder_id: e.target['folder_id'].value,
+      modified: new Date(),
+    }
+    fetch(`${config.API_ENDPOINT}/notes`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(newNote),
+    })
       .then(res => {
-         if(!res.ok){
-           alert(`${res.status} - ${res.statusText} - Please try agian`)
-         }
-         return res.json()
-       })
-
-      .then(data => {
-          this.context.handleAddNote(data)
-          this.props.history.goBack()
-      }).catch(error => {
-        alert(error)
+        if (!res.ok)
+          return res.json().then(e => Promise.reject(e))
+        return res.json()
       })
+      .then(note => {
+        this.context.addNote(note)
+        this.props.history.push(`/folder/${note.folder_id}`)
+      })
+      .catch(error => {
+        console.error({ error })
+      })
+  }
 
-    }
-
-    const validateDisplay = () => {
-      const { name, content } = this.state
-      if(name.value.length < 1 || content.value.length < 1) return 'field must not be empty'
-      if(name.value.length > 256 || content.value.length > 500) return 'field too large'
-      return ""
-    }
-
-    const validateFields = (noteObj) => {
-      const { name, content, folder_id } = noteObj
-      if(name.length === 0 )return false
-      if(content.length === 0)return false
-      if(folder_id.length === 0)return false
-      return true
-      
-    }
-
-
-    const submitHandler = (e) => {
-      e.preventDefault()
-      const newNote = {
-        name: e.target.name.value,
-        content: e.target.content.value,
-        folder_id: e.target.folder_id.value,
-        modified: new Date()
-      }
-        return validateFields(newNote) ? postNewNote(JSON.stringify(newNote)) : alert('Fields are not valid')
-    }
-
+  render() {
+    const { folders = [] } = this.context
     return (
       <section className="formContainer">
-        <h3 className="error">{validateDisplay()}</h3>
-        <form 
-          onSubmit={(e) => submitHandler(e)}>
+        <form
+          onSubmit={(e) => this.handleSubmit(e)}>
           <label htmlFor="new_note">Name: </label>
-          <input 
-            id="name" 
-            type="text" 
-            value={this.state.name.value}
-            onChange={(e) => {
-              this.setState({name: {
-                value: e.target.value}})
-              validateDisplay()
-            }}
+          <input
+            id="name"
+            name="name"
+            type="text"
           />
           <label htmlFor="new_note">Content: </label>
-          <textarea 
-            id="content" 
-            cols="30" 
-            rows="10" 
-            value={this.state.content.value}
-            onChange={(e) => {
-              this.setState({content: {
-              value: e.target.value}})
-              validateDisplay()
-              }}
+          <textarea
+            id="content"
+            name="content"
+            cols="30"
+            rows="10"
+            minLength='1'
+            maxLength='1024'
           ></textarea>
-          <select 
-            id="folder_id" 
-            onChange={(e) => {
-              this.setState({folder_id: {value: e.target.value}})
-            }}
-          >
+          <select id="folder_id" name='folder_id'>
             <option value=''>Choose a folder</option>
-            {this.context.folders.map(folder => {
-              return <option value={`${folder.id}`} key={folder.id} >{`${folder.name}`}</option>
-            })}
+            {folders.map(folder =>
+              <option
+                value={folder.id}
+                key={folder.id}
+              >
+                {folder.name}
+              </option>
+            )}
           </select>
-          <button>Add</button>
+          <button type='submit'>Add</button>
         </form>
       </section>
     )
