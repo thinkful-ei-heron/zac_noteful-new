@@ -54,6 +54,8 @@ export default class NewNote extends React.Component {
             id="name"
             name="name"
             type="text"
+            required
+            maxLength='32'
           />
           <label htmlFor="new_note">Content: </label>
           <textarea
@@ -61,7 +63,7 @@ export default class NewNote extends React.Component {
             name="content"
             cols="30"
             rows="10"
-            minLength='1'
+            required
             maxLength='1024'
           ></textarea>
           <select id="folder_id" name='folder_id'>

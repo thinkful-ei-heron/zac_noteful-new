@@ -47,7 +47,7 @@ export default class NewFolder extends React.Component {
             name="foldername"
             type="text"
             maxLength='32'
-            minLength='1'
+            required
           />
           <button>Add</button>
         </form>
