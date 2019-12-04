@@ -14,7 +14,7 @@ export default class NewNote extends React.Component {
     content: {
       value: ''
     },
-    folderId: {
+    folder_id: {
       value: ''
     }
   }
@@ -56,10 +56,10 @@ export default class NewNote extends React.Component {
     }
 
     const validateFields = (noteObj) => {
-      const { name, content, folderId } = noteObj
+      const { name, content, folder_id } = noteObj
       if(name.length === 0 )return false
       if(content.length === 0)return false
-      if(folderId.length === 0)return false
+      if(folder_id.length === 0)return false
       return true
       
     }
@@ -70,7 +70,7 @@ export default class NewNote extends React.Component {
       const newNote = {
         name: e.target.name.value,
         content: e.target.content.value,
-        folderId: e.target.folderId.value,
+        folder_id: e.target.folder_id.value,
         modified: new Date()
       }
         return validateFields(newNote) ? postNewNote(JSON.stringify(newNote)) : alert('Fields are not valid')
@@ -105,9 +105,9 @@ export default class NewNote extends React.Component {
               }}
           ></textarea>
           <select 
-            id="folderId" 
+            id="folder_id" 
             onChange={(e) => {
-              this.setState({folderId: {value: e.target.value}})
+              this.setState({folder_id: {value: e.target.value}})
             }}
           >
             <option value=''>Choose a folder</option>
